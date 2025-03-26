@@ -1,10 +1,13 @@
 package com.happiness.budtree.domain.member;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
 
 
 @Entity
 @Table(name = "member")
+@Getter
 public class Member {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,5 +25,15 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    public Member() {}
+
+    @Builder
+    public Member(String name, String username, String password, Role role) {
+        this.name = name;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
 
 }
