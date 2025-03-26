@@ -11,18 +11,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.Collections;
 
 @Configuration
-@EnableWebMvc
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -52,7 +52,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/", "/member/login", "/member/logout", "/member/check-username", "/member/register", "/member/reissue").permitAll()
+                        .requestMatchers("/", "/member/login", "/member/logout", "/member/check", "/member/register", "/member/reissue").permitAll()
                         .requestMatchers("/member/profile/**", "/chatroom/**", "/message/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
                         .anyRequest().authenticated());
 
