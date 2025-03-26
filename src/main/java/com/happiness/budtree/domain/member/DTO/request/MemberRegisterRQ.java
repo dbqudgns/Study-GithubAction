@@ -16,6 +16,6 @@ public record MemberRegisterRQ(
 
         @NotNull(message = "아이디 중복 검사는 필수입니다.")
         @Range(min = 1, max = 1, message = "아이디 중복 검사는 필수입니다.")
-        Integer successUsername
+        Integer success
 ) {
 }
