@@ -1,6 +1,7 @@
 package com.happiness.budtree.domain.member.service;
 
-import com.happiness.budtree.domain.member.DTO.request.MemberRegisterDTO;
+import com.happiness.budtree.domain.member.DTO.request.MemberRegisterRQ;
+import com.happiness.budtree.domain.member.DTO.response.MemberCheckRP;
 import com.happiness.budtree.domain.member.Member;
 import com.happiness.budtree.domain.member.MemberRepository;
 import com.happiness.budtree.domain.member.Role;
@@ -17,12 +18,26 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void register(MemberRegisterDTO memberRegisterDTO) {
+    public MemberCheckRP checkID(String username) {
+
+        if (memberRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
+        }
+
+        return MemberCheckRP.builder()
+                .username(username)
+                .success(1)
+                .message("사용 가능한 닉네임 입니다.")
+                .build();
+    }
+
+    @Transactional
+    public void register(MemberRegisterRQ memberRegisterRQ) {
 
         Member member = Member.builder()
-                .name(memberRegisterDTO.name())
-                .username(memberRegisterDTO.username())
-                .password(bCryptPasswordEncoder.encode(memberRegisterDTO.password()))
+                .name(memberRegisterRQ.name())
+                .username(memberRegisterRQ.username())
+                .password(bCryptPasswordEncoder.encode(memberRegisterRQ.password()))
                 .role(Role.USER)
                 .build();
 

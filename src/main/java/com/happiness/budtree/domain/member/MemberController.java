@@ -1,7 +1,8 @@
 package com.happiness.budtree.domain.member;
 
-import com.happiness.budtree.domain.member.DTO.request.MemberLoginDTO;
-import com.happiness.budtree.domain.member.DTO.request.MemberRegisterDTO;
+import com.happiness.budtree.domain.member.DTO.request.MemberCheckRQ;
+import com.happiness.budtree.domain.member.DTO.request.MemberLoginRQ;
+import com.happiness.budtree.domain.member.DTO.request.MemberRegisterRQ;
 import com.happiness.budtree.domain.member.service.LoginService;
 import com.happiness.budtree.domain.member.service.LogoutService;
 import com.happiness.budtree.domain.member.service.MemberService;
@@ -29,12 +30,20 @@ public class MemberController {
     private final LogoutService logoutService;
     private final RefreshService refreshService;
 
+    @PostMapping("/check")
+    @Operation(summary = "아이디 중복 체크")
+    public ResponseEntity<?> checkID(@RequestBody @Valid MemberCheckRQ memberCheckRQ) {
+
+        String username = memberCheckRQ.username();
+
+        return ResponseEntity.ok(memberService.checkID(username));
+    }
 
     @PostMapping("/register")
     @Operation(summary = "회원가입")
-    public ResponseEntity<?> register(@RequestBody @Valid MemberRegisterDTO memberRegisterDTO) {
+    public ResponseEntity<?> register(@RequestBody @Valid MemberRegisterRQ memberRegisterRQ) {
 
-        memberService.register(memberRegisterDTO);
+        memberService.register(memberRegisterRQ);
 
         return ResponseEntity.ok(ApiResponse.success(200, "회원가입 성공"));
     }
@@ -47,9 +56,9 @@ public class MemberController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인")
-    public ResponseEntity<?> login(@RequestBody @Valid MemberLoginDTO memberLoginDTO,
+    public ResponseEntity<?> login(@RequestBody @Valid MemberLoginRQ memberLoginRQ,
                                    HttpServletRequest request, HttpServletResponse response) {
-        return loginService.login(memberLoginDTO, request, response);
+        return loginService.login(memberLoginRQ, request, response);
     }
 
     @GetMapping("/logout")
