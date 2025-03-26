@@ -1,6 +1,6 @@
 package com.happiness.budtree.domain.member.service;
 
-import com.happiness.budtree.domain.member.DTO.request.MemberLoginDTO;
+import com.happiness.budtree.domain.member.DTO.request.MemberLoginRQ;
 import com.happiness.budtree.jwt.CookieUtil;
 import com.happiness.budtree.jwt.JWTUtil;
 import com.happiness.budtree.util.ApiResponse;
@@ -25,7 +25,7 @@ public class LoginService {
     private final JWTUtil jwtUtil;
     private final RedisUtil redisUtil;
 
-    public ResponseEntity<?> login(MemberLoginDTO memberLoginRequest, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> login(MemberLoginRQ memberLoginRequest, HttpServletRequest request, HttpServletResponse response) {
 
         try {
 

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Range;
 
-public record MemberRegisterDTO(
+public record MemberRegisterRQ(
         @NotBlank(message = "닉네임은 필수 입력 항목입니다.")
         String name,
 
