@@ -30,4 +30,6 @@ public class Survey {
 
     @Column(nullable = false)
     private LocalDateTime createdDate;
+
+
 }

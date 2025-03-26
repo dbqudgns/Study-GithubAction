@@ -36,4 +36,5 @@ public class Post {
         this.content = content;
         this.emotion = emotion;
     }
+
 }
