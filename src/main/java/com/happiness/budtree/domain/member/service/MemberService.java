@@ -21,13 +21,13 @@ public class MemberService {
     public MemberCheckRP checkID(String username) {
 
         if (memberRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
+            throw new IllegalArgumentException("이미 사용중인 아이디 입니다.");
         }
 
         return MemberCheckRP.builder()
                 .username(username)
                 .success(1)
-                .message("사용 가능한 닉네임 입니다.")
+                .message("사용 가능한 아이디 입니다.")
                 .build();
     }
 
