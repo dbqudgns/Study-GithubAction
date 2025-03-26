@@ -3,18 +3,17 @@ package com.happiness.budtree.domain.survey;
 import com.happiness.budtree.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Getter
 @Table(name = "survey")
 public class Survey {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(nullable = false)
     private Long surveyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
