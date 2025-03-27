@@ -10,7 +10,7 @@ import java.util.Collection;
 
 //DTO : 로그인 한 사용자를 DB에 조회에서 AuthenticationManager에게 전달하기 위해 만듦
 @RequiredArgsConstructor
-public class CustomUserDetails implements UserDetails {
+public class CustomMemberDetails implements UserDetails {
 
     private final Member member;
 

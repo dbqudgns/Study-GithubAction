@@ -5,8 +5,10 @@ import com.happiness.budtree.domain.member.DTO.response.MemberCheckRP;
 import com.happiness.budtree.domain.member.Member;
 import com.happiness.budtree.domain.member.MemberRepository;
 import com.happiness.budtree.domain.member.Role;
+import com.happiness.budtree.jwt.Custom.CustomMemberDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,26 @@ public class MemberService {
                 .build();
 
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public void checkName(String name, CustomMemberDetails customMemberDetails) {
+
+        Member member = findMemberByUsernameOrTrow(customMemberDetails.getUsername());
+
+        member.updateName(name);
+
+    }
+
+    public Member findMemberByUsernameOrTrow(String username) {
+
+        Member member = memberRepository.findByUsername(username);
+
+        if (member == null) {
+            throw new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다.");
+        }
+
+        return member;
     }
 
 }

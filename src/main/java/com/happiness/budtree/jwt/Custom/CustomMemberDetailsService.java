@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 //username이 DB에 존재 유무 파악
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomMemberDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
 
@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Member member = memberRepository.findByUsername(username);
 
         if (member != null) {
-            return new CustomUserDetails(member);
+            return new CustomMemberDetails(member);
         }
 
         return null;

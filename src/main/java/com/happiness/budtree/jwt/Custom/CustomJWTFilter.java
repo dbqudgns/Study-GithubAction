@@ -96,10 +96,10 @@ public class CustomJWTFilter extends OncePerRequestFilter {
                 .password("temp_pw")
                 .build();
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(member);
+        CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
 
         //스프링 시큐리티 인증 토큰 생성 : 인증된 사용자 객체, 비밀번호, 사용자 권한 목록
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customMemberDetails, null, customMemberDetails.getAuthorities());
 
         //세션에 사용자 등록 : 이후 컨트롤러에서 @AuthenticationPrincipal 등을 사용해 현재 로그인한 사용자를 가져올 수 있다.
         SecurityContextHolder.getContext().setAuthentication(authToken);
