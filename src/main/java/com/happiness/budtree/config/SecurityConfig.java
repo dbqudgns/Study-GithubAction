@@ -5,6 +5,7 @@ import com.happiness.budtree.jwt.Custom.CustomJWTFilter;
 import com.happiness.budtree.jwt.JWTUtil;
 import com.happiness.budtree.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,8 +54,32 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/", "/member/login", "/member/logout", "/member/check", "/member/register", "/member/reissue").permitAll()
-                        .requestMatchers("/member/profile/**", "/chatroom/**", "/message/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
+                        .requestMatchers("/member/change-name", "/chatroom/**", "/message/**", "/post/**", "/survey/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
                         .anyRequest().authenticated());
+
+        //인증되지 않은 사용자에 대한 exception 처리
+        http
+                .exceptionHandling((exception) ->
+                        exception.authenticationEntryPoint(((request, response, authException) -> {
+
+                            if(response.getStatus() == HttpServletResponse.SC_UNAUTHORIZED) {
+                                response.setStatus(response.getStatus());
+                            } else {
+                                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                            }
+
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+
+                            // CustomJWTFilter 에서 설정한 예외 메시지 가져오기
+                            String customMessage = (String) request.getAttribute("exceptionMessage");
+
+                            // 기본 메시지 설정
+                            String message = (customMessage != null) ? customMessage : "로그인 후 JWT를 발급 받으세요";
+
+                            response.getWriter().write("{\"message\" : \"" + message + "\"}");
+
+                        })));
 
         http
                 .addFilterBefore(new CustomJWTFilter(jwtUtil, redisUtil), UsernamePasswordAuthenticationFilter.class);

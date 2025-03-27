@@ -21,7 +21,7 @@ public class ApiResponse {
     }
 
     //인증되지 않은 사용자에게 보내는 메서드
-    public static ResponseEntity<?> Unauthorized(HttpServletResponse response, String msg) throws IOException {
+    public static ResponseEntity<?> Unauthorized(String msg) {
 
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("status", 401);
