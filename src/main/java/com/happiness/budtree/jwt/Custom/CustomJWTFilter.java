@@ -3,9 +3,11 @@ package com.happiness.budtree.jwt.Custom;
 import com.happiness.budtree.domain.member.Member;
 import com.happiness.budtree.domain.member.Role;
 import com.happiness.budtree.jwt.JWTUtil;
-import com.happiness.budtree.util.ApiResponse;
 import com.happiness.budtree.util.RedisUtil;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,13 +34,6 @@ public class CustomJWTFilter extends OncePerRequestFilter {
 
         String token = request.getHeader("Authorization");
 
-        if (request.getRequestURI().equals("/member/logout")) {
-            log.info("logout 호출");
-            filterChain.doFilter(request, response);
-
-            return;
-        }
-
         if (token == null || !token.startsWith("Bearer ")) {
             log.info("토큰이 없거나 Bearer 로 시작하지 않음");
             filterChain.doFilter(request, response);
@@ -49,62 +44,73 @@ public class CustomJWTFilter extends OncePerRequestFilter {
         String accessToken = token.split(" ")[1];
 
         try {
+
+            String username = jwtUtil.getUsername(accessToken);
+
+            //블랙리스트 확인 (로그아웃된 Access 토큰인지 확인)
+            String blackListData = redisUtil.getBlackListData("AT:" + username);
+            if (blackListData != null && blackListData.equals(accessToken)) {
+                log.info("블랙리스트에 등록된 토큰 사용 시도: {}", username);
+                request.setAttribute("exceptionMessage", "로그아웃을 진행한 Access Token입니다.");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            // JWT 토큰 만료 검사
             jwtUtil.isExpired(accessToken);
+
+            String category = jwtUtil.getCategory(accessToken);
+            if (!category.equals("access")) {
+                request.setAttribute("exceptionMessage", "Access 토큰이 아닙니다.");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            String role = jwtUtil.getRole(accessToken);
+            Role userRole = Role.valueOf(role.replace("ROLE_", ""));
+
+            Member member = Member.builder()
+                    .username(username)
+                    .role(userRole)
+                    .password("temp_pw")
+                    .build();
+
+            CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
+
+            //스프링 시큐리티 인증 토큰 생성 : 인증된 사용자 객체, 비밀번호, 사용자 권한 목록
+            Authentication authToken = new UsernamePasswordAuthenticationToken(customMemberDetails, null, customMemberDetails.getAuthorities());
+
+            //세션에 사용자 등록 : 이후 컨트롤러에서 @AuthenticationPrincipal 등을 사용해 현재 로그인한 사용자를 가져올 수 있다.
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            filterChain.doFilter(request, response);
+
+
         } catch (ExpiredJwtException e) {
 
-            ApiResponse.Unauthorized(response, "Access 토큰 만료됐습니다. Refresh 토큰을 통해 재발급 요청을 해주세요.");
+            log.error("Access 토큰이 만료됐습니다. Refresh 토큰을 통해 재발급 요청을 해주세요.: {}", e.getMessage());
+            request.setAttribute("exceptionMessage", "Access 토큰이 만료됐습니다. Refresh 토큰을 통해 재발급 요청을 해주세요.");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 
-            return;
+        } catch (UnsupportedJwtException e) { // 서버에서 지원하지 않는 알고리즘으로 생성된 JWT일때 발생
+
+            log.error("해당 JWT는 지원하지 않습니다.: {}", e.getMessage());
+            request.setAttribute("exceptionMessage", "해당 JWT는 지원하지 않습니다.");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+        } catch (SignatureException e) { // JWT의 생성 시점 SecretKey와 복호화 시점의 SecretKey가 달라 발생
+
+            log.error("JWT의 서명이 올바르지 않습니다.: {}", e.getMessage());
+            request.setAttribute("exceptionMessage", "JWT의 서명이 올바르지 않습니다.");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+        } catch (MalformedJwtException e) { // JWT의 구조가 올바르지 않을 때 발생
+
+            log.error("JWT의 구조가 올바르지 않습니다.: {}", e.getMessage());
+            request.setAttribute("exceptionMessage", "JWT의 구조가 올바르지 않습니다.");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
         }
-
-        String category = jwtUtil.getCategory(accessToken);
-
-        if (!category.equals("access")) {
-
-            ApiResponse.Unauthorized(response, "Access 토큰이 아닙니다.");
-
-            return;
-        }
-
-        String username = jwtUtil.getUsername(accessToken);
-
-        String blackListData = redisUtil.getBlackListData("AT:" + username);
-        if (blackListData != null && blackListData.equals(accessToken)) {
-            ApiResponse.Unauthorized(response, "로그아웃한 Access Token입니다.");
-
-            return;
-        }
-
-        /**
-        //Redis에 저장되어 있는 Access token과 Header로 온 Access Token 값 같은지 확인
-        //로그인 하고 다른 기기로 로그인 하면 로그인이 안된다. 즉, 다중 로그인이 안된다.
-        //why ? Redis에서 아이디 중복으로 처리 안함
-        if (!accessToken.equals(redisUtil.getData("AT:" + jwtUtil.getUsername(accessToken)))) {
-
-            ApiResponse.Unauthorized(response, "해당 Access 토큰의 값이 Redis에 저장되지 않았습니다.");
-
-            return;
-        }
-         **/
-
-        String role = jwtUtil.getRole(accessToken);
-        Role userRole = Role.valueOf(role.replace("ROLE_", ""));
-
-        Member member = Member.builder()
-                .username(username)
-                .role(userRole)
-                .password("temp_pw")
-                .build();
-
-        CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
-
-        //스프링 시큐리티 인증 토큰 생성 : 인증된 사용자 객체, 비밀번호, 사용자 권한 목록
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customMemberDetails, null, customMemberDetails.getAuthorities());
-
-        //세션에 사용자 등록 : 이후 컨트롤러에서 @AuthenticationPrincipal 등을 사용해 현재 로그인한 사용자를 가져올 수 있다.
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        filterChain.doFilter(request, response);
 
     }
 }

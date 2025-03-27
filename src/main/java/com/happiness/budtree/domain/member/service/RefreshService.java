@@ -37,26 +37,26 @@ public class RefreshService {
         }
 
         if (refresh == null)
-            return ApiResponse.Unauthorized(response, "Refresh 토큰이 없습니다.");
+            return ApiResponse.Unauthorized("Refresh 토큰이 없습니다.");
 
 
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-            return ApiResponse.Unauthorized(response, "자동 로그아웃 되었습니다. 다시 로그인하세요.");
+            return ApiResponse.Unauthorized("자동 로그아웃 되었습니다. 다시 로그인하세요.");
         }
 
         String category = jwtUtil.getCategory(refresh);
 
         if (!category.equals("refresh"))
-            return ApiResponse.Unauthorized(response, "Refresh 토큰이 아닙니다.");
+            return ApiResponse.Unauthorized("Refresh 토큰이 아닙니다.");
 
 
         String username = jwtUtil.getUsername(refresh);
         String redisRT = redisUtil.getData("RT:" + username);
 
         if (redisRT == null)
-            return ApiResponse.Unauthorized(response, "Redis에 해당 Refresh 토큰이 없습니다.");
+            return ApiResponse.Unauthorized("Redis에 해당 Refresh 토큰이 없습니다.");
 
 
         String role = jwtUtil.getRole(refresh);

@@ -60,8 +60,8 @@ public class MemberController {
     @PostMapping("/login")
     @Operation(summary = "로그인")
     public ResponseEntity<?> login(@RequestBody @Valid MemberLoginRQ memberLoginRQ,
-                                   HttpServletRequest request, HttpServletResponse response) {
-        return loginService.login(memberLoginRQ, request, response);
+                                   HttpServletResponse response) {
+        return loginService.login(memberLoginRQ, response);
     }
 
     @GetMapping("/logout")

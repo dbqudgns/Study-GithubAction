@@ -25,7 +25,7 @@ public class LoginService {
     private final JWTUtil jwtUtil;
     private final RedisUtil redisUtil;
 
-    public ResponseEntity<?> login(MemberLoginRQ memberLoginRequest, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> login(MemberLoginRQ memberLoginRequest, HttpServletResponse response) {
 
         try {
 

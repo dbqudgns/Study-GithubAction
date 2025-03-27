@@ -24,17 +24,16 @@ public class LogoutService {
 
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-
         String token = request.getHeader("Authorization");
 
         if (token == null || !token.startsWith("Bearer ")) {
-            return ApiResponse.Unauthorized(response, "토큰이 없거나 Bearer 로 시작하지 않음");
+            return ApiResponse.Unauthorized("토큰이 없거나 Bearer 로 시작하지 않음");
         }
 
         String access = token.split(" ")[1];
 
         if (!access.equals(redisUtil.getData("AT:" + jwtUtil.getUsername(access)))) {
-            return ApiResponse.Unauthorized(response, "해당 Access 토큰의 값이 Redis에 저장되지 않았습니다.");
+            return ApiResponse.Unauthorized("해당 Access 토큰의 값이 Redis에 저장되지 않았습니다.");
         }
 
         String refresh = null;
@@ -49,26 +48,26 @@ public class LogoutService {
         }
 
         if (refresh == null)
-            return ApiResponse.Unauthorized(response, "Refresh 토큰이 없습니다.");
+            return ApiResponse.Unauthorized("Refresh 토큰이 없습니다.");
 
 
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-            return ApiResponse.Unauthorized(response, "자동 로그아웃 되었습니다. 다시 로그인하세요.");
+            return ApiResponse.Unauthorized("Refresh Token이 만료되었습니다. 다시 로그인하세요.");
         }
 
         String category = jwtUtil.getCategory(refresh);
 
         if (!category.equals("refresh"))
-           return ApiResponse.Unauthorized(response, "Refresh 토큰이 아닙니다.");
+           return ApiResponse.Unauthorized("Refresh 토큰이 아닙니다.");
 
 
         String username = jwtUtil.getUsername(refresh);
         String redisRT = redisUtil.getData("AT:" + username);
 
         if (redisRT == null)
-           return ApiResponse.Unauthorized(response, "Redis에 해당 Refresh 토큰이 없습니다.");
+           return ApiResponse.Unauthorized("Redis에 해당 Refresh 토큰이 없습니다.");
         
 
         //로그아웃 진행
