@@ -36,4 +36,8 @@ public class Member {
         this.role = role;
     }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
 }
