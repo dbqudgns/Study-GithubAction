@@ -65,4 +65,13 @@ public class MemberService {
 
     }
 
+    @Transactional
+    public void edit(CustomMemberDetails customMemberDetails) {
+
+        Member member = returnMember.findMemberByUsernameOrTrow(customMemberDetails.getUsername());
+
+        memberRepository.delete(member);
+
+    }
+
 }

@@ -91,4 +91,11 @@ public class MemberController {
 
     }
 
+    @DeleteMapping("/edit")
+    @Operation(summary = "회원탈퇴")
+    public ResponseEntity<?> edit(@AuthenticationPrincipal CustomMemberDetails customMemberDetails) {
+        memberService.edit(customMemberDetails);
+        return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "회원탈퇴 완료"));
+    }
+
 }
