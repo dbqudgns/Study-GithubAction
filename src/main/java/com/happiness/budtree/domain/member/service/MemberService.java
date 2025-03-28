@@ -6,9 +6,9 @@ import com.happiness.budtree.domain.member.Member;
 import com.happiness.budtree.domain.member.MemberRepository;
 import com.happiness.budtree.domain.member.Role;
 import com.happiness.budtree.jwt.Custom.CustomMemberDetails;
+import com.happiness.budtree.util.ReturnMember;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +18,7 @@ public class MemberService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
+    private final ReturnMember returnMember;
 
     @Transactional
     public MemberCheckRP checkID(String username) {
@@ -47,23 +48,21 @@ public class MemberService {
     }
 
     @Transactional
-    public void checkName(String name, CustomMemberDetails customMemberDetails) {
+    public void changeName(String name, CustomMemberDetails customMemberDetails) {
 
-        Member member = findMemberByUsernameOrTrow(customMemberDetails.getUsername());
+        Member member = returnMember.findMemberByUsernameOrTrow(customMemberDetails.getUsername());
 
         member.updateName(name);
 
     }
 
-    public Member findMemberByUsernameOrTrow(String username) {
+    @Transactional
+    public void changePW(String newPassword, CustomMemberDetails customMemberDetails) {
 
-        Member member = memberRepository.findByUsername(username);
+        Member member = returnMember.findMemberByUsernameOrTrow(customMemberDetails.getUsername());
 
-        if (member == null) {
-            throw new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다.");
-        }
+        member.updatePassword(bCryptPasswordEncoder.encode(newPassword));
 
-        return member;
     }
 
 }

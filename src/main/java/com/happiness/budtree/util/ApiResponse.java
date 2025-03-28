@@ -2,15 +2,13 @@ package com.happiness.budtree.util;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ApiResponse {
 
-    //API 성공 시 응답하는 메서드
-    public static Map<String, Object> success(Object code, String msg) {
+    //API 성공 or 실패시 응답하는 메서드
+    public static Map<String, Object> SuccessOrFail(Object code, String msg) {
 
         Map<String, Object> map = new HashMap<>();
 

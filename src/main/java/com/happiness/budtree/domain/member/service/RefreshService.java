@@ -71,7 +71,7 @@ public class RefreshService {
         response.setHeader("Authorization", "Bearer " + newAccess);
         response.addCookie(CookieUtil.createCookie("refresh", newRefresh, 24 * 60 * 60));
 
-        return ResponseEntity.ok(ApiResponse.success(200, "Access 토큰 재발급 및 Refresh Rotate 성공"));
+        return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "Access 토큰 재발급 및 Refresh Rotate 성공"));
 
     }
 }
