@@ -15,7 +15,7 @@ import java.util.Map;
 //Spring Boot 3.4.0 부터 ControllerAdviceBean의 init 함수가 존재하지 않는다고 나옴
 //Swagger가 예외 처리 컨트롤러(@RestControllerAdvice)를 자동으로 API 문서에 포함하는 동작이 변경되어 충돌이 일어난 것으로 보임
 @Hidden
-@RestControllerAdvice(basePackages = {"com.happiness.budtree.domain"})
+@RestControllerAdvice(basePackages = {"com.happiness.budtree.domain", "com.happiness.budtree.util"})
 public class GlobalExceptionHandler {
 
     //DTO Validation 예외 처리

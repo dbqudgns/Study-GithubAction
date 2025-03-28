@@ -82,13 +82,13 @@ public class LogoutService {
         //Access Token 블랙리스트
         long remainingTime = jwtUtil.getRemainingTime(access); // ms 반환
         if (remainingTime == 0L) {
-            return ResponseEntity.ok(ApiResponse.success(200, "로그아웃 완료"));
+            return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "로그아웃 완료"));
         }
 
         remainingTime /= 1000L; // s 처리
         redisUtil.setBlackList("AT:" + username, access, remainingTime);
 
 
-        return ResponseEntity.ok(ApiResponse.success(200, "로그아웃 완료"));
+        return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "로그아웃 완료"));
     }
 }
