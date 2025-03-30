@@ -22,6 +22,33 @@ public class Survey {
     private Member member;
 
     @Column(nullable = false)
+    private int part1;
+
+    @Column(nullable = false)
+    private int part2;
+
+    @Column(nullable = false)
+    private int part3;
+
+    @Column(nullable = false)
+    private int part4;
+
+    @Column(nullable = false)
+    private int part5;
+
+    @Column(nullable = false)
+    private int part6;
+
+    @Column(nullable = false)
+    private int part7;
+
+    @Column(nullable = false)
+    private int part8;
+
+    @Column(nullable = false)
+    private int part9;
+
+    @Column(nullable = false)
     private int score;
 
     @Column(nullable = false)
