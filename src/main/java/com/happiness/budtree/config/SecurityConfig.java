@@ -7,6 +7,7 @@ import com.happiness.budtree.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +26,7 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
@@ -52,9 +54,8 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/", "/member/login", "/member/logout", "/member/check", "/member/register", "/member/reissue").permitAll()
-                        .requestMatchers("/member/change-name", "/member/change-password", "/member/edit", "/chatroom/**", "/message/**", "/post/**", "/survey/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/", "/member/login", "/member/check", "/member/register", "/member/reissue").permitAll()
+                        .requestMatchers("/member/logout","/member/change-name", "/member/change-password", "/member/edit", "/chatroom/**", "/message/**", "/post/**", "/survey/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
                         .anyRequest().authenticated());
 
         //인증되지 않은 사용자에 대한 exception 처리

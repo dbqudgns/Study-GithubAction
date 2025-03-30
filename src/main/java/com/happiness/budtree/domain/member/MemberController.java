@@ -36,7 +36,7 @@ public class MemberController {
 
         String username = memberCheckRQ.username();
 
-        return ResponseEntity.ok(memberService.checkID(username));
+        return ResponseEntity.ok(ApiResponse.success(memberService.checkID(username)));
     }
 
     @PostMapping("/register")
@@ -45,7 +45,7 @@ public class MemberController {
 
         memberService.register(memberRegisterRQ);
 
-        return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "회원가입 성공"));
+        return ResponseEntity.ok(ApiResponse.success("회원가입 성공"));
     }
 
     @GetMapping("/reissue")
@@ -73,7 +73,7 @@ public class MemberController {
                                         @AuthenticationPrincipal CustomMemberDetails customMemberDetails) {
         String name = memberChangeNameRQ.name();
         memberService.changeName(name, customMemberDetails);
-        return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "닉네임 변경 완료"));
+        return ResponseEntity.ok(ApiResponse.success("닉네임 변경 완료"));
     }
 
     @PatchMapping("/change-password")
@@ -82,11 +82,11 @@ public class MemberController {
                                       @AuthenticationPrincipal CustomMemberDetails customMemberDetails) {
 
         if (!memberChangePWRQ.checkPassword()) {
-            return ResponseEntity.badRequest().body(ApiResponse.SuccessOrFail(400, "새로운 비밀번호와 확인용 비밀번호가 일치하지 않습니다."));
+            return ResponseEntity.badRequest().body(ApiResponse.success("새로운 비밀번호와 확인용 비밀번호가 일치하지 않습니다."));
         }
         else {
             memberService.changePW(memberChangePWRQ.newPassword(), customMemberDetails);
-            return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "비밀번호 변경 완료"));
+            return ResponseEntity.ok(ApiResponse.success("비밀번호 변경 완료"));
         }
 
     }
@@ -95,7 +95,7 @@ public class MemberController {
     @Operation(summary = "회원탈퇴")
     public ResponseEntity<?> edit(@AuthenticationPrincipal CustomMemberDetails customMemberDetails) {
         memberService.edit(customMemberDetails);
-        return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "회원탈퇴 완료"));
+        return ResponseEntity.ok(ApiResponse.success("회원탈퇴 완료"));
     }
 
 }

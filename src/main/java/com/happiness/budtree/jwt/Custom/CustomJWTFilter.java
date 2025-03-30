@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -28,6 +29,23 @@ public class CustomJWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final RedisUtil redisUtil;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        log.info("{}", path);
+
+        //Security 필터를 적용하지 않을 경로 지정
+        return pathMatcher.match("/swagger-ui/**", path) ||
+                pathMatcher.match("/v3/api-docs/**", path) ||
+                pathMatcher.match("/member/register", path) ||
+                pathMatcher.match("/member/login", path) ||
+                pathMatcher.match("/member/check", path) ||
+                pathMatcher.match("/member/reissue", path);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
