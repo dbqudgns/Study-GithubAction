@@ -46,14 +46,12 @@ public class LoginService {
             response.setHeader("Authorization", "Bearer " + access); //AT는 헤더로 전송
             response.addCookie(CookieUtil.createCookie("refresh", refresh, 24 * 60 * 60)); //RT는 쿠키로 전송
 
-            return ResponseEntity.ok(ApiResponse.SuccessOrFail(200, "로그인 성공"));
+            return ResponseEntity.ok(ApiResponse.success("로그인 성공"));
 
         } catch (AuthenticationException e) {
 
             //로그인 실패 시
-            Map<String, Object> errorResponse = ApiResponse.SuccessOrFail(401, "아이디 또는 비밀번호가 올바르지 않습니다.");
-
-            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body(errorResponse);
+            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body(ApiResponse.fail(401, "아이디 또는 비밀번호가 올바르지 않습니다."));
         }
     }
 }

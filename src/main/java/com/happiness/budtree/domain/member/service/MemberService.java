@@ -30,7 +30,7 @@ public class MemberService {
         return MemberCheckRP.builder()
                 .username(username)
                 .success(1)
-                .message("사용 가능한 아이디 입니다.")
+                .msg("사용 가능한 아이디 입니다.")
                 .build();
     }
 
