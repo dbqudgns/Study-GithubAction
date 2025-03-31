@@ -54,8 +54,8 @@ public class CustomJWTFilter extends OncePerRequestFilter {
 
         if (token == null || !token.startsWith("Bearer ")) {
             log.info("토큰이 없거나 Bearer 로 시작하지 않음");
-            filterChain.doFilter(request, response);
-
+            request.setAttribute("exceptionMessage", "Access 토큰이 없습니다. 로그인을 진행해주세요.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -64,6 +64,14 @@ public class CustomJWTFilter extends OncePerRequestFilter {
         try {
 
             String username = jwtUtil.getUsername(accessToken);
+
+            //Redis에 저장된 Access 토큰인지 확인
+            if (!redisUtil.getData("AT:" + username).equals(accessToken)) {
+                log.info("Redis에 등록되지 않은 토큰 사용 시도: {}", username);
+                request.setAttribute("exceptionMessage", "해당 Access 토큰은 Redis에 저장되지 않았습니다.");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
 
             //블랙리스트 확인 (로그아웃된 Access 토큰인지 확인)
             String blackListData = redisUtil.getBlackListData("AT:" + username);
