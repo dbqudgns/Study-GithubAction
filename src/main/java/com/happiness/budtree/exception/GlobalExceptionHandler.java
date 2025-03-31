@@ -1,6 +1,7 @@
 package com.happiness.budtree.exception;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -8,7 +9,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.View;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,5 +56,28 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResult, HttpStatus.NOT_FOUND);
 
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResult> notFoundEntity(EntityNotFoundException e) {
+
+        ErrorResult errorResult = ErrorResult.builder()
+                .status(404)
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResult, HttpStatus.NOT_FOUND);
+
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResult> notUseResource(AccessDeniedException e) {
+
+        ErrorResult errorResult = ErrorResult.builder()
+                .status(400)
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
     }
 }

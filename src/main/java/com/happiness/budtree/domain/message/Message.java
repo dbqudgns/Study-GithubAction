@@ -17,12 +17,7 @@ public class Message {
     private Long messageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name = "room_id", referencedColumnName = "room_id"),
-            // referencedColumnName : chatroom 테이블에서 참조할 속성 => room_id를 참조
-            @JoinColumn(name = "member_id", referencedColumnName = "member_id")
-            // referencedColumnName : chatroom 테이블에서 참조할 속성 => member_id를 참조
-    })
+    @JoinColumn(name = "room_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Chatroom chatroom;
 
