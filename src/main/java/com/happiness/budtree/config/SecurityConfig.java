@@ -69,6 +69,8 @@ public class SecurityConfig {
                                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                             }
 
+                            int status = response.getStatus();
+
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
 
@@ -78,7 +80,7 @@ public class SecurityConfig {
                             // 기본 메시지 설정
                             String message = (customMessage != null) ? customMessage : "로그인 후 JWT를 발급 받으세요";
 
-                            response.getWriter().write("{\"message\" : \"" + message + "\"}");
+                            response.getWriter().write("{\"status\": " + status + ", \"message\": \"" + message + "\"}");
 
                         })));
 
