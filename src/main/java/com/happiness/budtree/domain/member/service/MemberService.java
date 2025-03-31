@@ -37,6 +37,10 @@ public class MemberService {
     @Transactional
     public void register(MemberRegisterRQ memberRegisterRQ) {
 
+        if (!memberRegisterRQ.password().equals(memberRegisterRQ.verifyPassword())) {
+            throw new IllegalArgumentException("입력한 비밀번호와 검증용 비밀번호가 일치하지 않습니다.");
+        }
+
         Member member = Member.builder()
                 .name(memberRegisterRQ.name())
                 .username(memberRegisterRQ.username())
