@@ -3,6 +3,7 @@ package com.happiness.budtree.util;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,7 @@ public class ApiResponse {
     }
 
     @Getter
+    @Setter
     @AllArgsConstructor
     public static class ApiSuccess<T> {
         private final int status;
@@ -27,6 +29,7 @@ public class ApiResponse {
     }
 
     @Getter
+    @Setter
     @AllArgsConstructor
     public static class ApiFail {
         private final int status;

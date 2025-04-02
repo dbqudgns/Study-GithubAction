@@ -1,25 +1,53 @@
 package com.happiness.budtree.domain.chatroom;
 
-import com.happiness.budtree.domain.chatroom.DTO.response.ChatroomFirstSurveyRP;
+import com.happiness.budtree.domain.chatroom.DTO.request.ChatroomAllRQ;
+import com.happiness.budtree.domain.chatroom.DTO.response.*;
 import com.happiness.budtree.domain.member.Member;
+import com.happiness.budtree.domain.message.Message;
+import com.happiness.budtree.domain.message.MessageRepository;
+import com.happiness.budtree.domain.message.SenderType;
 import com.happiness.budtree.domain.survey.Survey;
 import com.happiness.budtree.domain.survey.SurveyRepository;
 import com.happiness.budtree.jwt.Custom.CustomMemberDetails;
 import com.happiness.budtree.util.ReturnMember;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class ChatroomService {
 
     private final ReturnMember returnMember;
     private final SurveyRepository surveyRepository;
     private final ChatroomRepository chatroomRepository;
+    private final MessageRepository messageRepository;
+   // private final OpenAiChatModel openAiChatModel;
+   // private final ChatClient chatClient;
+
+    public ChatroomService(ReturnMember returnMember, SurveyRepository surveyRepository, ChatroomRepository chatroomRepository,
+                           MessageRepository messageRepository, OpenAiChatModel openAiChatModel, ChatClient.Builder client) {
+        this.returnMember = returnMember;
+        this.surveyRepository = surveyRepository;
+        this.chatroomRepository = chatroomRepository;
+        this.messageRepository = messageRepository;
+    //    this.openAiChatModel = openAiChatModel;
+    //    this.chatClient = client.build();
+    }
+
 
     private static final Map<Integer, String> QUESTION = Map.of(
             1, "일 또는 여가 활동을 하는데 흥미나 즐거움을 느끼지 못함",
@@ -41,7 +69,7 @@ public class ChatroomService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 자가 진단을 찾을 수 없습니다."));
 
         if (!Objects.equals(survey.getMember().getUsername(), member.getUsername())) {
-            throw new AccessDeniedException("로그인 한 사용자는 해당 자가진단을 이용할 수 없습니다.");
+            throw new AccessDeniedException("로그인 한 사용자는 해당 자가진단을 조회 할 수 없습니다.");
         }
 
         Chatroom chatroom = Chatroom.builder()
@@ -54,6 +82,7 @@ public class ChatroomService {
 
         return ChatroomFirstSurveyRP.builder()
                 .name(member.getName())
+                .roomId(chatroom.getRoomId())
                 .result(scoreMap)
                 .build();
     }
@@ -83,5 +112,198 @@ public class ChatroomService {
             case 9 -> survey.getPart9();
             default -> throw new IllegalArgumentException("잘못된 항목 번호입니다.");
         };
+    }
+
+    @Transactional
+    public ChatroomIdRP createChatroom(CustomMemberDetails customMemberDetails) {
+
+        Member member = returnMember.findMemberByUsernameOrTrow(customMemberDetails.getUsername());
+
+        Chatroom newChatroom = Chatroom.builder()
+                .member(member)
+                .build();
+        chatroomRepository.save(newChatroom);
+
+        return ChatroomIdRP.builder()
+                .roomId(newChatroom.getRoomId())
+                .build();
+    }
+
+//    @Transactional
+//    public Flux<String> getChatByQuery(Long roomId, String query, CustomMemberDetails customMemberDetails) throws AccessDeniedException {
+//
+//        Member member = returnMember.findMemberByUsernameOrTrow(customMemberDetails.getUsername());
+//        log.info("1");
+//        Chatroom chatroom = chatroomRepository.findById(roomId)
+//                .orElseThrow(() -> new EntityNotFoundException("해당 채팅방을 찾을 수 없습니다."));
+//        log.info("2");
+//        if (!Objects.equals(chatroom.getMember().getUsername(), member.getUsername())) {
+//            throw new AccessDeniedException("로그인 한 사용자는 해당 채팅방을 이용할 수 없습니다.");
+//        }
+//        log.info("3");
+//        //사용자 요청문 저장
+//        Message userMessage = new Message(chatroom, SenderType.MEMBER, query, LocalDateTime.now());
+//        messageRepository.save(userMessage);
+//
+//
+//        //최근 4개 대화 가져오기
+//        List<Message> previousMessages = messageRepository.getMessageByRoomID(chatroom);
+//        int previousSize = previousMessages.size();
+//        List<Message> recentMessages = previousMessages.subList(Math.max(previousSize - 4, 0), previousSize);
+//        log.info("4");
+//
+//        // "system" 역할
+//        SystemMessage system = new SystemMessage("Buddy sympathizes with the other person's concerns and thoughts as much as possible, suggests solutions, and continues the conversation without honorifics.");
+//        log.info("5");
+//        List<org.springframework.ai.chat.messages.Message> promptMessages = new ArrayList<>();
+//        promptMessages.add(system);
+//        log.info("6");
+//        for (Message chatMessage : recentMessages) {
+//            if (chatMessage.getSenderType() == SenderType.MEMBER) {
+//                promptMessages.add(new UserMessage(chatMessage.getContent()));
+//            }
+//            else {
+//                promptMessages.add(new AssistantMessage(chatMessage.getContent()));
+//            }
+//        }
+//        log.info("7");
+//        // "user" 역할
+//        UserMessage user = new UserMessage(query);
+//        promptMessages.add(user);
+//
+//        log.info("8");
+//        // GPT 호출
+//        Prompt prompt = new Prompt(promptMessages);
+//        ChatResponse answer = openAiChatModel.call(prompt);
+//
+//
+//        log.info("9");
+//        //응답 저장
+//        messageRepository.save(new Message(chatroom, SenderType.BUDDY, answer.getResult().getOutput().getText(), LocalDateTime.now()));
+//
+//
+//        log.info("10");
+//
+//        return chatClient.prompt().user(query)
+//                .stream()
+//                .content()
+//                // 각 요소(문자열)를 문장 단위로 분리합니다.
+//                .flatMap(text -> Flux.fromArray(text.split("(?<=[.!?])\\s*")))
+//                // 빈 문자열은 제거
+//                .filter(sentence -> !sentence.isBlank());
+//
+//    }
+
+    public List<ChatroomAllRP> chatroomAllRP(ChatroomAllRQ chatroomAllRQ, CustomMemberDetails customMemberDetails) {
+
+        Member member = returnMember.findMemberByUsernameOrTrow(customMemberDetails.getUsername());
+
+        List<Chatroom> allChatroom = chatroomRepository.getChatroomByMemberID(member);
+
+        List<ChatroomAllRP> chatroomAllRPs = new ArrayList<>();
+
+        //전체 조회 시 수행
+        if (chatroomAllRQ.year() == 0 && chatroomAllRQ.month() == 0) {
+
+            for (Chatroom chatroom : allChatroom) {
+
+                ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
+                        .roomId(chatroom.getRoomId())
+                        .createdTime(chatroom.getCreatedDate())
+                        .build();
+
+                chatroomAllRPs.add(chatroomAllRP);
+
+            }
+
+            return chatroomAllRPs;
+
+        } //월만 조회 시
+        else if (chatroomAllRQ.year() == 0) {
+
+            for (Chatroom chatroom : allChatroom) {
+
+                LocalDateTime createdDate = chatroom.getCreatedDate();
+
+                if (createdDate.getMonthValue() == chatroomAllRQ.month()) {
+                    ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
+                            .roomId(chatroom.getRoomId())
+                            .createdTime(chatroom.getCreatedDate())
+                            .build();
+
+                    chatroomAllRPs.add(chatroomAllRP);
+                }
+            }
+
+            return chatroomAllRPs;
+        } //년만 조회 시
+        else if (chatroomAllRQ.month() == 0) {
+
+            for (Chatroom chatroom : allChatroom) {
+
+                LocalDateTime createdDate = chatroom.getCreatedDate();
+
+                if (createdDate.getYear() == chatroomAllRQ.year()) {
+                    ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
+                            .roomId(chatroom.getRoomId())
+                            .createdTime(chatroom.getCreatedDate())
+                            .build();
+
+                    chatroomAllRPs.add(chatroomAllRP);
+                }
+            }
+
+            return chatroomAllRPs;
+        }
+        else { // 특정 년, 월 조회 시
+
+            for (Chatroom chatroom : allChatroom) {
+
+                LocalDateTime createdDate = chatroom.getCreatedDate();
+
+                //요청 받은 년, 월과 비교
+                if (createdDate.getYear() == chatroomAllRQ.year() && createdDate.getMonthValue() == chatroomAllRQ.month()) {
+
+                    ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
+                            .roomId(chatroom.getRoomId())
+                            .createdTime(chatroom.getCreatedDate())
+                            .build();
+
+                    chatroomAllRPs.add(chatroomAllRP);
+                }
+            }
+
+            return chatroomAllRPs;
+        }
+    }
+
+    public List<ChatroomMessageRP> chatroomMessages(Long roomId, CustomMemberDetails customMemberDetails) throws AccessDeniedException {
+
+        Member member = returnMember.findMemberByUsernameOrTrow(customMemberDetails.getUsername());
+
+        Chatroom room = chatroomRepository.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 채팅방을 찾을 수 없습니다."));
+
+        if (!Objects.equals(room.getMember().getUsername(), member.getUsername())) {
+            throw new AccessDeniedException("로그인 한 사용자는 해당 채팅방을 조회 할 수 없습니다.");
+        }
+
+        List<Message> messageList = messageRepository.getMessageByRoomID(room);
+
+        List<ChatroomMessageRP> chatroomMessageRPs = new ArrayList<>();
+        for (Message message : messageList) {
+
+            ChatroomMessageRP chatroomMessageRP = ChatroomMessageRP.builder()
+                    .sender(message.getSenderType())
+                    .content(message.getContent())
+                    .createdDate(message.getCreatedDate())
+                    .build();
+
+            chatroomMessageRPs.add(chatroomMessageRP);
+
+        }
+
+        return chatroomMessageRPs;
+
     }
 }
