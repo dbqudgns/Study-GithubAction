@@ -36,7 +36,7 @@ public class ChatroomController {
     }
 
     @PostMapping("/chat/survey/{roomId}")
-    @Operation(summary = "자가진단 전용 챗봇 요청")
+    @Operation(summary = "자가진단 항목 전용 챗봇 요청")
     public ResponseEntity<?> getChatBySurvey(@PathVariable("roomId") Long roomId, @RequestBody @Valid ChatroomPartRQ chatroomPartRQ,
                                              @AuthenticationPrincipal CustomMemberDetails customMemberDetails) throws AccessDeniedException {
         return ResponseEntity.ok(ApiResponse.success(chatroomService.getChatBySurvey(roomId, chatroomPartRQ, customMemberDetails)));
