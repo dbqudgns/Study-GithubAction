@@ -6,6 +6,8 @@ spring:
     username: root
     password: ${DB_PASSWORD}
 
+
+
   jpa:
     hibernate:
       ddl-auto: none
@@ -16,6 +18,13 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
 #        format_sql: true
+  ai:
+    openai:
+      api-key: ${GPT_KEY}
+      chat:
+        options:
+          model: ${FINE_TUNNING_KEY}
+          temperature: 1.0
 
   jwt:
     secret: ${JWT_KEY}
@@ -30,4 +39,5 @@ spring:
 #logging:
 #    level:
 #      root: trace
+
 
