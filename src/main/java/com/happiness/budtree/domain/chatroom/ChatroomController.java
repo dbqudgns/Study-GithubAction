@@ -1,6 +1,7 @@
 package com.happiness.budtree.domain.chatroom;
 
 import com.happiness.budtree.domain.chatroom.DTO.request.ChatroomAllRQ;
+import com.happiness.budtree.domain.chatroom.DTO.request.ChatroomPartRQ;
 import com.happiness.budtree.domain.chatroom.DTO.request.ChatroomQueryRQ;
 import com.happiness.budtree.jwt.Custom.CustomMemberDetails;
 import com.happiness.budtree.util.ApiResponse;
@@ -11,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-
 import java.nio.file.AccessDeniedException;
-
 
 @RestController
 @RequestMapping("/chatroom")
@@ -37,14 +35,19 @@ public class ChatroomController {
         return ResponseEntity.ok(ApiResponse.success(chatroomService.createChatroom(customMemberDetails)));
     }
 
-//    @PostMapping("/chat/{roomId}")
-//    @Operation(summary = "챗봇 요청")
-//    public Flux<String> getChatByQuery(@RequestBody @Valid ChatroomQueryRQ chatroomQueryRQ, @PathVariable("roomId") Long roomId,
-//                                            @AuthenticationPrincipal CustomMemberDetails customMemberDetails) throws AccessDeniedException {
-//        return chatroomService.getChatByQuery(roomId, chatroomQueryRQ.query(), customMemberDetails);
-//        //ResponseEntity.ok(ApiResponse.success(chatroomService.getChatByQuery(roomId, chatroomQueryRQ.query(), customMemberDetails)));
-//
-//    }
+    @PostMapping("/chat/survey/{roomId}")
+    @Operation(summary = "자가진단 전용 챗봇 요청")
+    public ResponseEntity<?> getChatBySurvey(@PathVariable("roomId") Long roomId, @RequestBody @Valid ChatroomPartRQ chatroomPartRQ,
+                                             @AuthenticationPrincipal CustomMemberDetails customMemberDetails) throws AccessDeniedException {
+        return ResponseEntity.ok(ApiResponse.success(chatroomService.getChatBySurvey(roomId, chatroomPartRQ, customMemberDetails)));
+    }
+
+    @PostMapping("/chat/{roomId}")
+    @Operation(summary = "챗봇 요청")
+    public ResponseEntity<?> getChatByQuery(@PathVariable("roomId") Long roomId, @RequestBody @Valid ChatroomQueryRQ chatroomQueryRQ,
+                                            @AuthenticationPrincipal CustomMemberDetails customMemberDetails) throws AccessDeniedException {
+        return ResponseEntity.ok(ApiResponse.success(chatroomService.getChatByQuery(roomId, chatroomQueryRQ.query(), customMemberDetails)));
+    }
 
     @PostMapping("/all")
     @Operation(summary = "대화 내역 전체 조회")

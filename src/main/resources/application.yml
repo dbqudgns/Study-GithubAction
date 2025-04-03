@@ -6,8 +6,6 @@ spring:
     username: root
     password: ${DB_PASSWORD}
 
-
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -36,8 +34,8 @@ spring:
       database: 0
 
 
-#logging:
-#    level:
-#      root: trace
+logging:
+    level:
+      root: trace
 
 
