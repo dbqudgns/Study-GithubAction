@@ -124,6 +124,7 @@ public class ChatroomService {
         chatroomRepository.save(newChatroom);
 
         return ChatroomIdRP.builder()
+                .name(member.getName())
                 .roomId(newChatroom.getRoomId())
                 .build();
     }
@@ -151,8 +152,6 @@ public class ChatroomService {
 
         //4. 사용자 메시지 저장
         String query = prompt.getContents();
-        log.info("query : {}", query);
-
         Message userMessage = Message.builder()
                 .chatroom(chatroom)
                 .content(query)

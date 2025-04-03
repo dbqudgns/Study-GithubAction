@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ChatroomIdRP(
+        String name,
         Long roomId
 ) {
 }
