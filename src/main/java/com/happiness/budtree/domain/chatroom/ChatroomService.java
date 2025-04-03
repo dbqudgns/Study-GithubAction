@@ -246,81 +246,50 @@ public class ChatroomService {
 
         List<Chatroom> allChatroom = chatroomRepository.getChatroomByMemberID(member);
 
-        List<ChatroomAllRP> chatroomAllRPs = new ArrayList<>();
+        List<Chatroom> filterChatroom;
 
         //전체 조회 시 수행
         if (chatroomAllRQ.year() == 0 && chatroomAllRQ.month() == 0) {
 
-            for (Chatroom chatroom : allChatroom) {
-
-                ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
-                        .roomId(chatroom.getRoomId())
-                        .createdTime(chatroom.getCreatedDate())
-                        .build();
-
-                chatroomAllRPs.add(chatroomAllRP);
-
-            }
-
-            return chatroomAllRPs;
+            filterChatroom = allChatroom;
 
         } //월만 조회 시
         else if (chatroomAllRQ.year() == 0) {
 
-            for (Chatroom chatroom : allChatroom) {
+            filterChatroom = allChatroom.stream()
+                    .filter(chatroom -> chatroom.getCreatedDate().getMonthValue() == chatroomAllRQ.month())
+                    .toList();
 
-                LocalDateTime createdDate = chatroom.getCreatedDate();
-
-                if (createdDate.getMonthValue() == chatroomAllRQ.month()) {
-                    ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
-                            .roomId(chatroom.getRoomId())
-                            .createdTime(chatroom.getCreatedDate())
-                            .build();
-
-                    chatroomAllRPs.add(chatroomAllRP);
-                }
-            }
-
-            return chatroomAllRPs;
         } //년만 조회 시
         else if (chatroomAllRQ.month() == 0) {
 
-            for (Chatroom chatroom : allChatroom) {
+            filterChatroom = allChatroom.stream()
+                    .filter(chatroom -> chatroom.getCreatedDate().getYear() == chatroomAllRQ.year())
+                    .toList();
 
-                LocalDateTime createdDate = chatroom.getCreatedDate();
-
-                if (createdDate.getYear() == chatroomAllRQ.year()) {
-                    ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
-                            .roomId(chatroom.getRoomId())
-                            .createdTime(chatroom.getCreatedDate())
-                            .build();
-
-                    chatroomAllRPs.add(chatroomAllRP);
-                }
-            }
-
-            return chatroomAllRPs;
         }
         else { // 특정 년, 월 조회 시
 
-            for (Chatroom chatroom : allChatroom) {
-
-                LocalDateTime createdDate = chatroom.getCreatedDate();
-
-                //요청 받은 년, 월과 비교
-                if (createdDate.getYear() == chatroomAllRQ.year() && createdDate.getMonthValue() == chatroomAllRQ.month()) {
-
-                    ChatroomAllRP chatroomAllRP = ChatroomAllRP.builder()
-                            .roomId(chatroom.getRoomId())
-                            .createdTime(chatroom.getCreatedDate())
-                            .build();
-
-                    chatroomAllRPs.add(chatroomAllRP);
-                }
-            }
-
-            return chatroomAllRPs;
+           filterChatroom = allChatroom.stream()
+                   .filter(chatroom -> chatroom.getCreatedDate().getYear() == chatroomAllRQ.year() &&
+                           chatroom.getCreatedDate().getMonthValue() == chatroomAllRQ.month())
+                   .toList();
         }
+
+        if (filterChatroom.isEmpty()) {
+            throw new IllegalArgumentException("해당 날짜에 조회되는 대화 내역이 존재하지 않습니다.");
+        }
+
+        return filterChatroom.stream()
+                .map(this::convertToChatroomAllRP)
+                .toList();
+    }
+
+    private ChatroomAllRP convertToChatroomAllRP(Chatroom chatroom) {
+        return ChatroomAllRP.builder()
+                .roomId(chatroom.getRoomId())
+                .createdTime(chatroom.getCreatedDate())
+                .build();
     }
 
     public List<ChatroomMessageRP> chatroomMessages(Long roomId, CustomMemberDetails customMemberDetails) throws AccessDeniedException {
