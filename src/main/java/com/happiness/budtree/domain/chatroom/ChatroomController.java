@@ -1,7 +1,7 @@
 package com.happiness.budtree.domain.chatroom;
 
 import com.happiness.budtree.domain.chatroom.DTO.request.ChatroomAllRQ;
-import com.happiness.budtree.domain.chatroom.DTO.request.ChatroomQueryRQ;
+// import com.happiness.budtree.domain.chatroom.DTO.request.ChatroomQueryRQ;
 import com.happiness.budtree.jwt.Custom.CustomMemberDetails;
 import com.happiness.budtree.util.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
