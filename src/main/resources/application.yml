@@ -33,9 +33,9 @@ spring:
       port: 6379
       database: 0
 
-
-logging:
-    level:
-      root: trace
+#
+#logging:
+#    level:
+#      root: trace
 
 
