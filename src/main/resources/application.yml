@@ -2,7 +2,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/budtree_app?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://budtree-db:3306/budtree_app?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: root
     password: ${DB_PASSWORD}
 
@@ -29,9 +29,13 @@ spring:
 
   redis:
     data:
-      host: localhost
+      host: budtree-redis
       port: 6379
       database: 0
+
+# Reverse Poxy to Spring boot header setting
+server:
+  forward-headers-strategy: native
 
 #
 #logging:

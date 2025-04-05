@@ -10,6 +10,5 @@ public enum Emotion {
     SOSO, //그럭저럭
     BAD,  //나쁨
     TERRIBLE; //매우나쁨
-
 }
 

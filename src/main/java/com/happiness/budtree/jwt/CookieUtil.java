@@ -10,7 +10,7 @@ public class CookieUtil {
         cookie.setHttpOnly(false);
         cookie.setPath("/");
         cookie.setMaxAge(expired);
-        //cookie.setSecure(true); HTTPS에서만 쿠키를 전송하도록 설정 => 배포 시 주석 해제
+        cookie.setSecure(true);
 
         return cookie;
 

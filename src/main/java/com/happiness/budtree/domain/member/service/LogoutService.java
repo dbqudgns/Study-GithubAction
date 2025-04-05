@@ -86,8 +86,8 @@ public class LogoutService {
         }
 
         remainingTime /= 1000L; // s 처리
-        redisUtil.setBlackList("AT:" + username, access, remainingTime);
 
+        redisUtil.setBlackList("AT:" + username, access, remainingTime);
 
         return ResponseEntity.ok(ApiResponse.success("로그아웃 성공"));
     }

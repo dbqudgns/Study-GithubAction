@@ -53,10 +53,6 @@ dependencies {
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-//	//R2dbc
-//	implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
-	//Webflux
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 dependencyManagement {
